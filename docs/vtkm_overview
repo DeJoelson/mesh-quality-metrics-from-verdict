@@ -1,0 +1,31 @@
+
+VTK-m manages the scheduling of parallelism.  
+As a developer, you pick a parallel pattern.  AND: you write code to carry
+out an operation one some small piece of data.  This code is called
+a worklet.
+Also, as a developer, you write code to invoke the parallel pattern
+on your worklet.  This invoking code goes in your filter.
+
+The filter is the product you are making.  Someone who is using VTK-m will
+access your code through the filter.
+
+Brent wrote a filter.  It is called MeshQuality and lives in the vtkm/filter
+directory.
+The header for this filter is called MeshQuality.h
+The code for this filter is called MeshQuality.hxx
+The code is a header, which is weird to Hank.  The reason this is is because
+VTK-m makes heavy use of templates.
+
+The MeshQuality _filter_ makes use of a MeshQuality worklet.
+The MeshQuality worklet lives in vtkm/worklet.
+It is also called MeshQuality.h.
+
+The MeshQuality worklet is the one that takes a cell and calculates the metric
+of interest.  It handles all of the metrics of interest.  That said, this
+worklet does not contain the code for a given metric.  Instead, it calls
+a function to calculate the metric, and the functions it calls are located
+in _another_ location.
+
+The implementations of the metrics are in the directory exec/cellmetrics.
+
+

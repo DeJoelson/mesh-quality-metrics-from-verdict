@@ -1,0 +1,4 @@
+/home/users/sam/summer_2019_workbench/verdict/svn_files/MQ/test/CMakeFiles/rebuild_cache.dir
+/home/users/sam/summer_2019_workbench/verdict/svn_files/MQ/test/CMakeFiles/edit_cache.dir
+/home/users/sam/summer_2019_workbench/verdict/svn_files/MQ/test/CMakeFiles/aspect_ratio.dir
+/home/users/sam/summer_2019_workbench/verdict/svn_files/MQ/test/CMakeFiles/metric_test.dir

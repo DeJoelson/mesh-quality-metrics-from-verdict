@@ -1,0 +1,108 @@
+This example assumes we will add the aspect ratio metric.
+
+== Step #1: make a test file ==
+
+=== make the file ===
+
+cd test
+cp volume.cxx aspect_ratio.cxx
+
+=== modify the file to do aspect ratio and not volume ===
+
+     vtkm::Pair<vtkm::UInt8, vtkm::filter::CellMetric> val(celltypes[i], vtkm::filter::CellMetric::VOLUME);
+-->
+     vtkm::Pair<vtkm::UInt8, vtkm::filter::CellMetric> val(celltypes[i], vtkm::filter::CellMetric::ASPECT_RATIO);
+
+=== modify the file to output the correct filename ===
+
+  vtkm::io::writer::VTKDataSetWriter writer("ugrid_w_aspect_ratio.vtk");
+
+=== modify CMakeLists.txt to build our test program (aspect_ratio.cxx) ===
+
+add_executable(aspect_ratio aspect_ratio.cxx)
+target_link_libraries(aspect_ratio vtkm_cont vtkm_filter)
+
+
+== Step #2: modify the filter to know about our new metric ==
+
+cd vtk-m/vtkm/filter
+
+=== modify MeshQuality.h ===
+
+to enum class CellMetric, add
+
+  VOLUME,
+  ASPECT_RATIO,  <---- this is the new line of code.
+  NUMBER_OF_CELL_METRICS
+
+Add "aspectRatio" to the list of "MetricNames"
+
+
+== Step #3: modify the worklet to know about our new metric ==
+
+cd vtk-m/vtk/worklet
+
+=== modify MeshQuality.h ===
+
+Add an include:
+#include "vtkm/exec/cellmetrics/CellAspectRatioMetric.h"
+
+In the method ComputeMetric, there is a giant switch statement.
+Add your new metric to this switch statement.
+
+        case MetricTagType::ASPECT_RATIO:
+          metricValue =
+            vtkm::exec::cellmetrics::CellAspectRatioMetric<OutType>(numPts, pts, tag, *this);
+          break;
+
+
+== Step #4: add the code to actually do it!! ==
+
+cd vtk-m/vtk/exec/cellmetrics
+cp CellDiagonalRatioMetric.h CellAspectRatioMetric.h
+
+Hank did a global replace in vi:
+%s/Diagonal/Aspect/g
+and 31 substitutions on 27 lines
+
+modify CMakeLists.txt (in vtk-m/vtk/exec/cellmetrics)
+to include CellAspectRatioMetric.h
+
+== Step #5: let's compile ==
+
+# Run make in vtk-m directory
+cd vtk-m
+cmake .
+make
+
+# Run make in test directory
+cd test
+cmake .
+make
+
+# Run the test
+./aspect_ratio
+
+Open the file in VisIt
+
+== Step #6: let's add to SVN ==
+
+cd test
+svn add aspect_ratio.cxx
+
+(cd ../)
+
+cd vtk-m
+cd vtkm/exec/cellmetrics
+svn add CellAspectRatioMetric.h
+
+cd /to/top/level/MQ
+svn ci -m "skeleton for aspect ratio"
+
+Adding         test/aspect_ratio.cxx
+Sending        test/CMakeLists.txt
+Sending        vtk-m/vtkm/exec/cellmetrics/CMakeLists.txt
+Adding         vtk-m/vtkm/exec/cellmetrics/CellAspectRatioMetric.h
+Sending        vtk-m/vtkm/filter/MeshQuality.h
+Sending        vtk-m/vtkm/worklet/MeshQuality.h
+
